@@ -44,7 +44,7 @@ namespace VisualDebugger
 	///simulation objects
 	Camera* camera;
 	PhysicsEngine::MyScene* scene;
-	PxReal delta_time = 1.f/120.f;
+	PxReal delta_time = 1.f/60.f;
 	PxReal gForceStrength = 3;
 	RenderMode render_mode = NORMAL;
 	const int MAX_KEYS = 256;
@@ -182,7 +182,8 @@ namespace VisualDebugger
 
 		//perform a single simulation step
 		scene->Update(delta_time);
-		UpdateCamera();
+
+		camera->UpdateCamera(dx, dy);
 		
 	}
 
@@ -359,6 +360,7 @@ namespace VisualDebugger
 		dy = mMouseY - y;
 
 		//camera->Motion(dx, dy, delta_time);
+
 		//camera->UpdateCamera(dx, dy);
 
 		mMouseX = x;
@@ -402,7 +404,7 @@ namespace VisualDebugger
 		//PxVec3 CurrOrientation = camera->getDir();
 		//pose.q.toRadiansAndUnitAxis(rads, axis);
 
-		camera->SetPosition(scene->GetSelectedActor()->getGlobalPose().p + PxVec3(0, 5, 10));
+		//camera->SetPosition(scene->GetSelectedActor()->getGlobalPose().p + PxVec3(0, 5, 10));
 		//camera->SetOrientation(PxVec3(axis.x, axis.y, axis.z));
 	}
 }

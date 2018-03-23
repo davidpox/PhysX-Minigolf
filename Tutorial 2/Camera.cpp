@@ -4,12 +4,12 @@ namespace VisualDebugger
 {
 	using namespace physx;
 
-	Camera::Camera(const PxVec3 &_eye, const PxVec3& _dir, PxReal _speed, PxRigidDynamic* targetTransform)
+	Camera::Camera(const PxVec3 &_eye, const PxVec3& _dir, PxReal _speed, PxRigidDynamic* targetActor)
 	{
 		eye_init = _eye;
 		dir_init = _dir.getNormalized();
-		speed_init = _speed;
-		this->target = targetTransform;
+		
+		this->targetActor = targetActor;
 
 		Reset();
 	}
@@ -18,6 +18,8 @@ namespace VisualDebugger
 	{
 		x = eye.y;
 		y = eye.x;
+
+		
 
 		eye = eye_init;
 		dir = dir_init;
@@ -104,55 +106,49 @@ namespace VisualDebugger
 		eye -= PxVec3(0,1,0)*speed*delta_time; 
 	}
 
+	void Camera::UpdateCamera(float mouseX, float mouseY) {				// Moves the camera & rotates it based on mouse movement.		
+		std::cout << "X; " << mouseX << " | Y: " << mouseY << std::endl;
+		float mouseSensitivity = 0.2f;
+		float distance = 10.0f;
+		theta += mouseX * mouseSensitivity;
+		azimuth += mouseY * mouseSensitivity;
 
-	// Attempted Port from http://wiki.unity3d.com/index.php/MouseOrbitImproved
-	void Camera::UpdateCamera(float mouseX, float mouseY) {				// Moves the camera & rotates it based on mouse movement.
-		x += mouseX * xMoveSpeed * distance * 0.02f;
-		y -= mouseY * yMoveSpeed * 0.02f;							
-		y = ClampAngle(y, yMinLimit, yMaxLimit);						// Ensures we do not go below or above certain Y level 
+		const float DEG2RAD = 0.0174533f;
 
-		PxQuat rot = Euler(PxVec3(y, x, 0));							// converts PxVec3 Euler Angle to a Quaternion
+		float x = distance * cosf(theta * DEG2RAD) * cosf(azimuth * DEG2RAD);
+		float y = distance * sinf(azimuth * DEG2RAD);
+		y = PxClamp(y, 1.0f, 7.0f);
+		//std::cout << y << std::endl;
+		float z = distance * sinf(theta * DEG2RAD) * cosf(azimuth * DEG2RAD);
 
-		distance = PxClamp(distance, distanceMin, distanceMax);			// Clamps the distance so we don't go too far from the object (unused for now as we can't dwelve away from the object)
-		 
-		PxVec3 negDist = PxVec3(0.0f, 0.0f, -distance);
-		PxVec3 pos = rot.rotate(negDist) + target->getGlobalPose().p;
-
-		eye = pos;
-		dir = PxVec3(y, x, 0);
+		eye = targetActor->getGlobalPose().p + PxVec3(x, y, z);
+		dir = PxVec3(-x, -y, -z);
 	}
 
-	float Camera::ClampAngle(float angle, float minA, float maxA) {		// Angle Clamp
-		if (angle < -360.0f) 
-			angle += 360.0f;
-		if (angle > 360.0f)
-			angle -= 360.0f;
 
-		return PxClamp(angle, minA, maxA);
-	}
 
-	PxQuat Camera::Euler(PxVec3 euler) {								// Converts Euler to Quaternion
-		auto yaw = euler.x;
-		auto pitch = euler.y;
-		auto roll = euler.z;
+	//PxQuat Camera::Euler(PxVec3 euler) {								// Converts Euler to Quaternion
+	//	auto yaw = euler.x;
+	//	auto pitch = euler.y;
+	//	auto roll = euler.z;
 
-		PxReal rollOver2 = roll * 0.5f;
-		PxReal sinRollOver2 = (PxReal)sin((PxReal)rollOver2);
-		PxReal cosRollOver2 = (PxReal)cos((PxReal)rollOver2);
+	//	PxReal rollOver2 = roll * 0.5f;
+	//	PxReal sinRollOver2 = (PxReal)sin((PxReal)rollOver2);
+	//	PxReal cosRollOver2 = (PxReal)cos((PxReal)rollOver2);
 
-		PxReal pitchOver2 = pitch * 0.5f;
-		PxReal sinPitchOver2 = (PxReal)sin((PxReal)pitchOver2);
-		PxReal cosPitchOver2 = (PxReal)cos((PxReal)pitchOver2);
+	//	PxReal pitchOver2 = pitch * 0.5f;
+	//	PxReal sinPitchOver2 = (PxReal)sin((PxReal)pitchOver2);
+	//	PxReal cosPitchOver2 = (PxReal)cos((PxReal)pitchOver2);
 
-		PxReal yawOver2 = yaw * 0.5f;
-		PxReal sinYawOver2 = (PxReal)sin((PxReal)yawOver2);
-		PxReal cosYawOver2 = (PxReal)cos((PxReal)yawOver2);
+	//	PxReal yawOver2 = yaw * 0.5f;
+	//	PxReal sinYawOver2 = (PxReal)sin((PxReal)yawOver2);
+	//	PxReal cosYawOver2 = (PxReal)cos((PxReal)yawOver2);
 
-		PxQuat result;
-		result.x = cosYawOver2 * cosPitchOver2 * cosRollOver2 + sinYawOver2 * sinPitchOver2 * sinRollOver2;
-		result.y = cosYawOver2 * cosPitchOver2 * sinRollOver2 - sinYawOver2 * sinPitchOver2 * cosRollOver2;
-		result.z = cosYawOver2 * sinPitchOver2 * cosRollOver2 + sinYawOver2 * cosPitchOver2 * sinRollOver2;
-		result.w = sinYawOver2 * cosPitchOver2 * cosRollOver2 - cosYawOver2 * sinPitchOver2 * sinRollOver2;
-		return result;
-	}
+	//	PxQuat result;
+	//	result.x = cosYawOver2 * cosPitchOver2 * cosRollOver2 + sinYawOver2 * sinPitchOver2 * sinRollOver2;
+	//	result.y = cosYawOver2 * cosPitchOver2 * sinRollOver2 - sinYawOver2 * sinPitchOver2 * cosRollOver2;
+	//	result.z = cosYawOver2 * sinPitchOver2 * cosRollOver2 + sinYawOver2 * cosPitchOver2 * sinRollOver2;
+	//	result.w = sinYawOver2 * cosPitchOver2 * cosRollOver2 - cosYawOver2 * sinPitchOver2 * sinRollOver2;
+	//	return result;
+	//}
 }

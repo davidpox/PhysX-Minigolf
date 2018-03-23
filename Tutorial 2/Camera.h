@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "foundation/PxTransform.h"
 #include "foundation/PxMat33.h"
 #include "PhysicsEngine.h"
@@ -16,20 +17,21 @@ namespace VisualDebugger
 		PxVec3	eye, eye_init;
 		PxVec3	dir, dir_init;
 		PxReal speed, speed_init;
-		PxReal distance = 5.0f;
-		PxReal xMoveSpeed = 1.0f;
-		PxReal yMoveSpeed = 1.0f;
 		PxReal x = 0.0f;
 		PxReal y = 0.0f;
-		PxReal distanceMin = 0.5f;
-		PxReal distanceMax = 15.0f;
-		PxReal yMinLimit = 10.0f;
-		PxReal yMaxLimit = 70.0f;
-		PxRigidDynamic* target;
+		PxReal old_x = 0.0f;
+		PxReal old_y = 0.0f;
+
+		PxRigidDynamic* targetActor;
+
+		float theta;
+		float azimuth;
 
 	public:
 		///constructor
-		Camera(const PxVec3& _eye, const PxVec3& _dir, const PxReal _speed, PxRigidDynamic* targetTransform);
+		Camera(const PxVec3& _eye, const PxVec3& _dir, const PxReal _speed, PxRigidDynamic* targetActor);
+
+		
 
 		///reset view
 		void Reset();
@@ -77,6 +79,6 @@ namespace VisualDebugger
 			
 		float ClampAngle(float angle, float min, float max);
 
-		PxQuat Euler(PxVec3 euler);
+		//PxQuat Euler(PxVec3 euler);
 	};
 }
