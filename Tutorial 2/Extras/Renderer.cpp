@@ -9,7 +9,7 @@ namespace VisualDebugger
 {
 	namespace Renderer
 	{
-		PxVec3 default_color = PxVec3(0.8f, 0.8f, 0.8f);
+		PxVec4 default_color = PxVec4(0.8f, 0.8f, 0.8f, 1.0f);
 		PxVec3 background_color = PxVec3(0.f,0.f,0.f);
 		int render_detail = 10;
 		bool show_shadows = true;
@@ -159,7 +159,7 @@ namespace VisualDebugger
 		void RenderCloth(const PxCloth* cloth)
 		{
 			PxClothMeshDesc* mesh_desc = ((UserData*)cloth->userData)->cloth_mesh_desc;
-			PxVec3* color = ((UserData*)cloth->userData)->color;
+			PxVec4* color = ((UserData*)cloth->userData)->color;
 
 			PxU32 quad_count = mesh_desc->quads.count;
 			PxU32* quads = (PxU32*)mesh_desc->quads.data;
@@ -198,7 +198,7 @@ namespace VisualDebugger
 			PxTransform pose = cloth->getGlobalPose();
 			PxMat44 shapePose(pose);
 
-			glColor4f(color->x, color->y, color->z, 1.f);
+			glColor4f(color->x, color->y, color->z, color->w);
 
 			glPushMatrix();						
 			glMultMatrixf((float*)&shapePose);
@@ -248,9 +248,11 @@ namespace VisualDebugger
 
 		void Init()
 		{
+			glEnable(GL_NORMALIZE);
 			// Setup default render states
 			PxReal specular_material[]	= { .1f, .1f, .1f, 1.f };
 			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
 			glEnable(GL_COLOR_MATERIAL);
 			glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
 			glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 1.f);
@@ -260,7 +262,7 @@ namespace VisualDebugger
 			glEnable(GL_LIGHTING);
 			PxReal ambientColor[]	= { 0.2f, 0.2f, 0.2f, 1.f };
 			PxReal diffuseColor[]	= { 0.7f, 0.7f, 0.7f, 1.f };		
-			PxReal position[]		= { 50.f, 50.f, 100.f, 0.f };		
+			PxReal position[]		= { 0.f, 1.f, 0.f, 0.f };		
 			glLightfv(GL_LIGHT0, GL_AMBIENT, ambientColor);
 			glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseColor);
 			glLightfv(GL_LIGHT0, GL_POSITION, position);
@@ -290,7 +292,7 @@ namespace VisualDebugger
 
 		void Render(PxActor** actors, const PxU32 numActors)
 		{
-			PxVec3 shadow_color = default_color*0.9;
+			PxVec4 shadow_color = default_color*0.9;
 			for(PxU32 i=0;i<numActors;i++)
 			{
 				if (actors[i]->isCloth())
@@ -320,7 +322,7 @@ namespace VisualDebugger
 						glPushMatrix();						
 						glMultMatrixf((float*)&shapePose);
 
-						PxVec3 shape_color = default_color;
+						PxVec4 shape_color = default_color;
 
 						if (shape->userData)
 						{
@@ -334,7 +336,9 @@ namespace VisualDebugger
 						if (h.getType() == PxGeometryType::ePLANE)
 							glDisable(GL_LIGHTING);
 
-						glColor4f(shape_color.x, shape_color.y, shape_color.z, 1.f);
+						glEnable(GL_BLEND);
+
+						glColor4f(shape_color.x, shape_color.y, shape_color.z, shape_color.w);
 
 						RenderGeometry(h);
 
@@ -345,13 +349,13 @@ namespace VisualDebugger
 
 						if(show_shadows && (h.getType() != PxGeometryType::ePLANE))
 						{
-							const PxVec3 shadowDir(-0.7071067f, -0.7071067f, -0.7071067f);
+							const PxVec3 shadowDir(-1.0f, -0.7071067f, 1.f);
 							const PxReal shadowMat[]={ 1,0,0,0, -shadowDir.x/shadowDir.y,0,-shadowDir.z/shadowDir.y,0, 0,0,1,0, 0,0,0,1 };
 							glPushMatrix();						
 							glMultMatrixf(shadowMat);
 							glMultMatrixf((float*)&shapePose);
 							glDisable(GL_LIGHTING);
-							glColor4f(shadow_color.x, shadow_color.y, shadow_color.z, 1.f);
+							glColor4f(shadow_color.x, shadow_color.y, shadow_color.z, shadow_color.w);
 							RenderGeometry(h);
 							glEnable(GL_LIGHTING);
 							glPopMatrix();

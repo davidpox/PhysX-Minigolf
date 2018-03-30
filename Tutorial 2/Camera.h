@@ -19,13 +19,19 @@ namespace VisualDebugger
 		PxReal speed, speed_init;
 		PxReal x = 0.0f;
 		PxReal y = 0.0f;
-		PxReal old_x = 0.0f;
-		PxReal old_y = 0.0f;
 
 		PxRigidDynamic* targetActor;
 
+
+		float mouseSensitivity = 0.2f;
+		float distance = 10.0f;
+
 		float theta;
 		float azimuth;
+
+		float camx;
+		float camy;
+		float camz;
 
 	public:
 		///constructor
@@ -76,9 +82,10 @@ namespace VisualDebugger
 		void MoveDown(PxReal delta_time);
 
 		void UpdateCamera(float mouseX, float mouseY);
-			
-		float ClampAngle(float angle, float min, float max);
 
-		//PxQuat Euler(PxVec3 euler);
+		void UpdatePosition(float deltatime);
+
+		PxVec3 Lerp(PxVec3 start, PxVec3 end, float percent);
+
 	};
 }

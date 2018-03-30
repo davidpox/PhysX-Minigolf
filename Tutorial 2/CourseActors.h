@@ -13,14 +13,15 @@ namespace PhysicsEngine {
 		S_ICE
 	};
 
-	static const PxVec3 color_palette[] = {
-		PxVec3(66.f / 255.f, 134.f / 255.f, 244.f / 255.f),	// soft blue
-		PxVec3(82.f / 255.f, 175.f / 255.f, 35.f / 255.f),	// course green
-		PxVec3(156.f / 255.f, 84.f / 255.f, 16.f / 255.f),	// wall brown
-		PxVec3(1.0f, 1.0f, 1.0f),							// hwhite
-		PxVec3(0.3f, 0.3f, 0.3f),							// dark hwhite
-		PxVec3(214.f / 255.f, 184.f / 255.f, 109.f / 255.f),// sand
-		PxVec3(167.f / 255.f, 201.f / 255.f, 232.f / 255.f)	// ice
+	static const PxVec4 color_palette[] = {
+		PxVec4(66.f / 255.f, 134.f / 255.f, 244.f / 255.f, 1.0f),	// soft blue
+		PxVec4(82.f / 255.f, 175.f / 255.f, 35.f / 255.f, 1.0f),	// course green
+		PxVec4(156.f / 255.f, 84.f / 255.f, 16.f / 255.f, 1.0f),	// wall brown
+		PxVec4(1.0f, 1.0f, 1.0f, 1.0f),							// hwhite
+		PxVec4(0.3f, 0.3f, 0.3f, 1.0f),							// dark hwhite
+		PxVec4(214.f / 255.f, 184.f / 255.f, 109.f / 255.f, 1.0f),// sand
+		PxVec4(167.f / 255.f, 201.f / 255.f, 232.f / 255.f, 1.0f),	// ice
+		PxVec4(1.0f, 1.0f, 1.0f, 0.0f)								// INVISIBLE
 	};
 
 	const std::vector<PxVec3> wedge_verticies = {
@@ -140,7 +141,6 @@ namespace PhysicsEngine {
 			GetShape(4)->setLocalPose(PxTransform(0.0f, -0.3f, 3.8f));			
 
 			if (slanted) {
-				std::cout << "MAKING SLANTED SHAPE" << std::endl;
 				PxShape* wedge = ConvexMesh(wedge_verticies).GetShape(0);
 				PxConvexMeshGeometry wedge2;
 				if (wedge->getConvexMeshGeometry(wedge2)) {
@@ -173,9 +173,9 @@ namespace PhysicsEngine {
 			CreateShape(PxBoxGeometry(PxVec3(3.6f, 0.7f, 1.2f)));			// BACK BASE
 			GetShape(3)->setLocalPose(PxTransform(0.0f, -0.3f, -2.8f));
 			CreateShape(PxBoxGeometry(PxVec3(3.6f, 0.65f, 1.2f)));			// FRONT ROTATED
-			GetShape(4)->setLocalPose(PxTransform(PxVec3(0.0f, 0.7f, -0.39f), PxQuat(-0.785398, PxVec3(1, 0, 0))));
+			GetShape(4)->setLocalPose(PxTransform(PxVec3(0.0f, 0.7f, -0.39f), PxQuat(-0.785398f, PxVec3(1.0f, 0.0f, 0.0f))));
 			CreateShape(PxBoxGeometry(PxVec3(3.6f, 0.65f, 1.2f)));			// BACK ROTATED
-			GetShape(5)->setLocalPose(PxTransform(PxVec3(0.0f, 0.7f, 0.39f), PxQuat(0.785398, PxVec3(1, 0, 0))));
+			GetShape(5)->setLocalPose(PxTransform(PxVec3(0.0f, 0.7f, 0.39f), PxQuat(0.785398f, PxVec3(1.0f, 0.0f, 0.0f))));
 
 			Color(color_palette[2], 0);
 			Color(color_palette[2], 1);
@@ -271,6 +271,52 @@ namespace PhysicsEngine {
 
 			
 
+		}
+	};
+
+	class PathSplitWedge : public StaticActor {
+	public:
+		PathSplitWedge(const PxTransform& pose = PxTransform(PxIdentity))
+			: StaticActor(pose) {
+
+			CreateShape(PxBoxGeometry(PxVec3(0.2f, 1.0f, 0.2f)));			// INSIDE CORNER NOOK 1
+			GetShape(0)->setLocalPose(PxTransform(-3.8f, 0.0f, 3.8f));
+
+			CreateShape(PxBoxGeometry(PxVec3(4.0f, 1.0f, 0.2f)));			// TOP WALL
+			GetShape(1)->setLocalPose(PxTransform(0.0f, 0.0f, -3.8f));
+
+			CreateShape(PxBoxGeometry(PxVec3(0.2f, 1.0f, 0.2f)));			// INSIDE CORNER NOOK 2
+			GetShape(2)->setLocalPose(PxTransform(3.8f, 0.0f, 3.8f));
+
+			CreateShape(PxBoxGeometry(PxVec3(4.0f, 0.7f, 3.6f)));			// BASE LARGE
+			GetShape(3)->setLocalPose(PxTransform(0.0f, -0.3f, 0.0f));
+
+			CreateShape(PxBoxGeometry(PxVec3(3.6f, 0.7f, 0.2f)));			// BASE SMALL
+			GetShape(4)->setLocalPose(PxTransform(0.0f, -0.3f, 3.8f));
+
+			
+			PxShape* wedgeRight = ConvexMesh(wedge_verticies).GetShape(0);
+			PxConvexMeshGeometry wedgeRightGeom;
+			if (wedgeRight->getConvexMeshGeometry(wedgeRightGeom)) {
+				CreateShape(wedgeRightGeom);
+				GetShape(5)->setLocalPose(PxTransform(PxVec3(1.8f, 0.7f, -1.8f), PxQuat(-1.5708f, PxVec3(0, 1, 0))));
+				Color(color_palette[2], 5);
+			}
+
+			PxShape* wedgeLeft = ConvexMesh(wedge_verticies).GetShape(0);
+			PxConvexMeshGeometry wedgeLeftGeom;
+			if (wedgeLeft->getConvexMeshGeometry(wedgeLeftGeom)) {
+				CreateShape(wedgeLeftGeom);
+				GetShape(6)->setLocalPose(PxTransform(PxVec3(-1.8f, 0.7f, -1.8f), PxQuat(3.14159f, PxVec3(0, 1, 0))));
+				Color(color_palette[2], 6);
+			}
+			
+
+			Color(color_palette[2], 0);
+			Color(color_palette[2], 1);
+			Color(color_palette[2], 2);
+			Color(color_palette[1], 3);
+			Color(color_palette[1], 4);
 		}
 	};
 }

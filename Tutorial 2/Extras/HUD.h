@@ -29,6 +29,11 @@ namespace VisualDebugger
 			content.push_back(line);
 		}
 
+		///Change a line of text by index
+		void ChangeLine(string newText, PxReal idx) {
+			content[idx] = newText;
+		}
+		 
 		///Render the screen
 		void Render()
 		{
@@ -70,6 +75,15 @@ namespace VisualDebugger
 
 			screens.push_back(new HUDScreen(screen_id));
 			screens.back()->AddLine(line);
+		}
+
+		void changeLine(int screen_id, string line, int idx) {
+			for (unsigned int i = 0; i < screens.size(); i++) {
+				if (screens[i]->id == screen_id) {
+					screens[i]->ChangeLine(line, idx);
+					return;
+				}
+			}
 		}
 
 		///Set the active screen

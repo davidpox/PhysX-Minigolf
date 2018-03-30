@@ -8,6 +8,7 @@ namespace VisualDebugger
 	{
 		eye_init = _eye;
 		dir_init = _dir.getNormalized();
+		speed_init = _speed;
 		
 		this->targetActor = targetActor;
 
@@ -19,8 +20,10 @@ namespace VisualDebugger
 		x = eye.y;
 		y = eye.x;
 
+		camx = eye.x;
+		camy = eye.y;
+		camz = eye.z;
 		
-
 		eye = eye_init;
 		dir = dir_init;
 		speed = speed_init;
@@ -30,11 +33,10 @@ namespace VisualDebugger
 	{
 		PxVec3 viewY = dir.cross(PxVec3(0,1,0)).getNormalized();
 
-		PxQuat qx(PxPi * dx * speed * delta_time/ 180.0f, PxVec3(0,1,0));
+		PxQuat qx(PxPi * dx * (speed * 10) * delta_time/ 180.0f, PxVec3(0,1,0));
 		dir = qx.rotate(dir);
-		PxQuat qy(PxPi * dy * speed * delta_time/ 180.0f, viewY);
+		PxQuat qy(PxPi * dy * (speed * 10) * delta_time/ 180.0f, viewY);
 		dir = qy.rotate(dir);
-
 		dir.normalize();
 	}
 
@@ -68,7 +70,7 @@ namespace VisualDebugger
 
 	void Camera::MoveForward(PxReal delta_time) 
 	{ 
-		eye += dir*speed*delta_time; 
+		eye += dir*speed*delta_time;
 	}
 
 	void Camera::SetPosition(PxVec3 pos) {
@@ -107,48 +109,24 @@ namespace VisualDebugger
 	}
 
 	void Camera::UpdateCamera(float mouseX, float mouseY) {				// Moves the camera & rotates it based on mouse movement.		
-		std::cout << "X; " << mouseX << " | Y: " << mouseY << std::endl;
-		float mouseSensitivity = 0.2f;
-		float distance = 10.0f;
 		theta += mouseX * mouseSensitivity;
 		azimuth += mouseY * mouseSensitivity;
 
 		const float DEG2RAD = 0.0174533f;
 
-		float x = distance * cosf(theta * DEG2RAD) * cosf(azimuth * DEG2RAD);
-		float y = distance * sinf(azimuth * DEG2RAD);
-		y = PxClamp(y, 1.0f, 7.0f);
-		//std::cout << y << std::endl;
-		float z = distance * sinf(theta * DEG2RAD) * cosf(azimuth * DEG2RAD);
-
-		eye = targetActor->getGlobalPose().p + PxVec3(x, y, z);
-		dir = PxVec3(-x, -y, -z);
+		camx = distance * cosf(theta * DEG2RAD) * cosf(azimuth * DEG2RAD);
+		camy = distance * sinf(azimuth * DEG2RAD);
+		camz = distance * sinf(theta * DEG2RAD) * cosf(azimuth * DEG2RAD);
+		dir = PxVec3(-camx, -camy, -camz);
 	}
 
+	void Camera::UpdatePosition(float deltatime) {
+		PxVec3 lerp = Lerp(eye, targetActor->getGlobalPose().p + PxVec3(camx, camy, camz), deltatime);
+		eye = lerp;
+	}
 
+	PxVec3 Camera::Lerp(PxVec3 start, PxVec3 end, float percent) {
+		return (start + percent*(end - start));
+	}
 
-	//PxQuat Camera::Euler(PxVec3 euler) {								// Converts Euler to Quaternion
-	//	auto yaw = euler.x;
-	//	auto pitch = euler.y;
-	//	auto roll = euler.z;
-
-	//	PxReal rollOver2 = roll * 0.5f;
-	//	PxReal sinRollOver2 = (PxReal)sin((PxReal)rollOver2);
-	//	PxReal cosRollOver2 = (PxReal)cos((PxReal)rollOver2);
-
-	//	PxReal pitchOver2 = pitch * 0.5f;
-	//	PxReal sinPitchOver2 = (PxReal)sin((PxReal)pitchOver2);
-	//	PxReal cosPitchOver2 = (PxReal)cos((PxReal)pitchOver2);
-
-	//	PxReal yawOver2 = yaw * 0.5f;
-	//	PxReal sinYawOver2 = (PxReal)sin((PxReal)yawOver2);
-	//	PxReal cosYawOver2 = (PxReal)cos((PxReal)yawOver2);
-
-	//	PxQuat result;
-	//	result.x = cosYawOver2 * cosPitchOver2 * cosRollOver2 + sinYawOver2 * sinPitchOver2 * sinRollOver2;
-	//	result.y = cosYawOver2 * cosPitchOver2 * sinRollOver2 - sinYawOver2 * sinPitchOver2 * cosRollOver2;
-	//	result.z = cosYawOver2 * sinPitchOver2 * cosRollOver2 + sinYawOver2 * cosPitchOver2 * sinRollOver2;
-	//	result.w = sinYawOver2 * cosPitchOver2 * cosRollOver2 - cosYawOver2 * sinPitchOver2 * sinRollOver2;
-	//	return result;
-	//}
 }
