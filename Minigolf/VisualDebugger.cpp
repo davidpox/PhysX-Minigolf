@@ -57,7 +57,6 @@ namespace VisualDebugger
 
 	int shotsTaken = 0;
 	bool clearToShoot = true;
-	bool ended = false;
 
 
 
@@ -179,10 +178,13 @@ namespace VisualDebugger
 		scene->Update(delta_time);
 
 		if (!freecam) 
-			camera->UpdatePosition(delta_time);
+			camera->UpdatePosition(delta_time);	
 			
-				
-		
+		if (scene->hasGameEnded) {
+			hud.Clear();
+			hud.AddLine(HELP, "Game won! You took " + to_string(shotsTaken) + " shots!");
+			clearToShoot = false;
+		}
 	}
 
 	//user defined keyboard handlers
@@ -204,18 +206,13 @@ namespace VisualDebugger
 		switch (toupper(key))
 		{
 		//implement your own
-		case 'R':
-		{
-			hud.changeLine(HELP, "TEST", 0);	
-			PxVec3 pos = scene->GetSelectedActor()->getGlobalPose().p;
-			std::cout << pos.y << std::endl;
-		}
-			break;
 		case ' ':
 		{
-			scene->GetSelectedActor()->addForce(PxVec3(dir.x, 0.0f, dir.z).getNormalized()*gForceStrength * shotstrength);
-			std::cout << "Shot with: " << shotstrength << std::endl;
-			shotstrength = 0.0f;
+			if (clearToShoot) {
+				scene->GetSelectedActor()->addForce(PxVec3(dir.x, 0.0f, dir.z).getNormalized()*gForceStrength * shotstrength);
+				shotsTaken++;
+				shotstrength = 0.0f;
+			}
 		}
 		default:
 			break;

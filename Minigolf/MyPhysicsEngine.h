@@ -115,6 +115,7 @@ namespace PhysicsEngine
 		};
 
 		CollisionCallback* cCallback;
+		bool hasGameEnded;
 
 		MyScene() : Scene() {
 			filter_shader = CustomFilterShader;
@@ -148,8 +149,10 @@ namespace PhysicsEngine
 			CreateScene();
 		}
 
-		void Update() {
-
+		void CustomUpdate() {
+			if (cCallback->endGame) {
+				hasGameEnded = true;
+			}
 		}
 
 		void CreateScene() {

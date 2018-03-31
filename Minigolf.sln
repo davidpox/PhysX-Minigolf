@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tutorial 2", "Tutorial 2\Tutorial 2.vcxproj", "{E9ECB82F-6C38-43C2-A5D4-0F1DDAC723AE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Minigolf", "Minigolf\Minigolf.vcxproj", "{E9ECB82F-6C38-43C2-A5D4-0F1DDAC723AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

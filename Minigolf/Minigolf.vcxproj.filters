@@ -71,10 +71,10 @@
     <ClCompile Include="Extras\Renderer.cpp">
       <Filter>Source Files\Extras</Filter>
     </ClCompile>
-    <ClCompile Include="Tutorial 2.cpp">
+    <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="Minigolf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

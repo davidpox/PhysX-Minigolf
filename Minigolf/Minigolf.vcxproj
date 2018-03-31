@@ -38,13 +38,13 @@
     <ClCompile Include="Extras\Renderer.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="VisualDebugger.cpp" />
-    <ClCompile Include="Tutorial 2.cpp" />
+    <ClCompile Include="Minigolf.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E9ECB82F-6C38-43C2-A5D4-0F1DDAC723AE}</ProjectGuid>
     <RootNamespace>Workshop1</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>Tutorial 2</ProjectName>
+    <ProjectName>Minigolf</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
