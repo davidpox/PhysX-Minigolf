@@ -249,6 +249,7 @@ namespace VisualDebugger
 		void Init()
 		{
 			glEnable(GL_NORMALIZE);
+			glEnable(GL_POLYGON_SMOOTH);
 			// Setup default render states
 			PxReal specular_material[]	= { .1f, .1f, .1f, 1.f };
 			glEnable(GL_DEPTH_TEST);

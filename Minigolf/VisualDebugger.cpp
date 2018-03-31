@@ -53,6 +53,7 @@ namespace VisualDebugger
 	bool hud_show = true;
 	HUD hud;
 	float shotstrength = 0.0f;
+	float shotIncrementer = 0.4f; // used to change shot strength
 	bool freecam = false;
 
 	int shotsTaken = 0;
@@ -106,26 +107,29 @@ namespace VisualDebugger
 		//add an empty screen
 		hud.AddLine(EMPTY, "");
 		//add a help screen
-		hud.AddLine(HELP, " Simulation");
-		hud.AddLine(HELP, "    F10 - pause");
-		hud.AddLine(HELP, " Gameplay");
-		hud.AddLine(HELP, " Right click to move camera");
-		hud.AddLine(HELP, " Hold space to increase strength");
-		hud.AddLine(HELP, "     Release to shoot");
+		hud.AddLine(HELP, "Simulation");
+		hud.AddLine(HELP, "   F10 - pause");
+		hud.AddLine(HELP, "Gameplay");
+		hud.AddLine(HELP, "Right click to move camera");
+		hud.AddLine(HELP, "Hold space to increase strength");
+		hud.AddLine(HELP, "    Release to shoot");
 		hud.AddLine(HELP, "");
-		hud.AddLine(HELP, " Display");
-		hud.AddLine(HELP, "    F5 - Help on/off");
-		hud.AddLine(HELP, "    F6 - Shadows on/off");
-		hud.AddLine(HELP, "    F7 - Render mode");
-		hud.AddLine(HELP, "    F8 - Free cam on/off");
+		hud.AddLine(HELP, "Display");
+		hud.AddLine(HELP, "   F5 - Help on/off");
+		hud.AddLine(HELP, "   F6 - Shadows on/off");
+		hud.AddLine(HELP, "   F7 - Render mode");
+		hud.AddLine(HELP, "   F8 - Free cam on/off");
 		hud.AddLine(HELP, "");
+		hud.AddLine(HELP, "Shot Increment Power: " + to_string(shotIncrementer));
+		hud.AddLine(HELP, "Shots taken: 0");
+		hud.AddLine(HELP, "Shot Power: 0");
 		//add a pause screen
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "");
 		hud.AddLine(PAUSE, "");
-		hud.AddLine(PAUSE, "   Simulation paused. Press F10 to continue.");
+		hud.AddLine(PAUSE, "Simulation paused. Press F10 to continue.");
 		//set font size for all screens
-		hud.FontSize(0.018f);
+		hud.FontSize(0.015f);
 		//set font color for all screens
 		hud.Color(PxVec3(0.f,0.f,0.f));
 	}
@@ -179,6 +183,12 @@ namespace VisualDebugger
 
 		if (!freecam) 
 			camera->UpdatePosition(delta_time);	
+
+		PxVec3 vel = scene->GetSelectedActor()->getLinearVelocity();
+
+		if (vel == PxVec3(0.0f, 0.0f, 0.0f)) {
+			clearToShoot = true;
+		}
 			
 		if (scene->hasGameEnded) {
 			hud.Clear();
@@ -193,8 +203,23 @@ namespace VisualDebugger
 		switch (toupper(key))
 		{
 		//implement your own
-		case 'R':
+		case '-':
+		{
+			if(shotIncrementer > 0.0f) {
+				shotIncrementer -= 0.05f;
+				setprecision(3);
+				hud.changeLine(HELP, "Shot Increment Power: " + to_string(shotIncrementer), 13);
+			}
 			break;
+			}
+		case '+':
+		{
+			if (shotIncrementer < 1.0f)
+				shotIncrementer += 0.05f;
+				setprecision(3);
+				hud.changeLine(HELP, "Shot Increment Power: " + to_string(shotIncrementer), 13);
+			break;
+		}
 		default:
 			break;
 		}
@@ -209,8 +234,10 @@ namespace VisualDebugger
 		case ' ':
 		{
 			if (clearToShoot) {
+				clearToShoot = false;
 				scene->GetSelectedActor()->addForce(PxVec3(dir.x, 0.0f, dir.z).getNormalized()*gForceStrength * shotstrength);
 				shotsTaken++;
+				hud.changeLine(HELP, "Shots taken: " + to_string(shotsTaken), 14);
 				shotstrength = 0.0f;
 			}
 		}
@@ -258,9 +285,14 @@ namespace VisualDebugger
 			return;
 		switch (toupper(key))
 		{
-		case ' ': 
-			shotstrength += 0.4f;
+		case ' ':
+		{
+			if (clearToShoot) {
+				shotstrength += shotIncrementer;
+				hud.changeLine(HELP, "Shot power: " + to_string(int(shotstrength)), 15);
+			}
 			break;
+		}
 		default:
 			break;
 		}
@@ -360,13 +392,7 @@ namespace VisualDebugger
 	}
 
 	void mouseCallback(int button, int state, int x, int y)
-	{
-		//std::cout << "pressed " << button << "\t state: " << state << std::endl;
-
-		//if (button == 2 && state == 0) {
-		//	glutSetCursor(GLUT_CURSOR_NONE); 
-		//} else { glutSetCursor(GLUT_CURSOR_INHERIT); }
-		
+	{		
 		mMouseX = x;
 		mMouseY = y;
 	}

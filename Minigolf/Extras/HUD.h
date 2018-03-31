@@ -38,7 +38,7 @@ namespace VisualDebugger
 		void Render()
 		{
 			for (unsigned int i = 0; i < content.size(); i++)
-				Renderer::RenderText(content[i], PxVec2(0.0, 1.f-(i+1)*font_size), color, font_size);
+				Renderer::RenderText(content[i], PxVec2(0.01f, (1.f-(i+1)*font_size) - 0.02f), color, font_size);
 		}
 
 		///Clear content of the screen
