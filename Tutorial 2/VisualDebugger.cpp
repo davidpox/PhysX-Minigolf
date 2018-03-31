@@ -54,9 +54,12 @@ namespace VisualDebugger
 	HUD hud;
 	float shotstrength = 0.0f;
 	bool freecam = false;
-	bool clearToShoot = true;
 
-	float timer = 0.0f;
+	int shotsTaken = 0;
+	bool clearToShoot = true;
+	bool ended = false;
+
+
 
 	//Init the debugger
 	void Init(const char *window_name, int width, int height)
@@ -112,10 +115,10 @@ namespace VisualDebugger
 		hud.AddLine(HELP, "     Release to shoot");
 		hud.AddLine(HELP, "");
 		hud.AddLine(HELP, " Display");
-		hud.AddLine(HELP, "    F5 - help on/off");
-		hud.AddLine(HELP, "    F6 - shadows on/off");
-		hud.AddLine(HELP, "    F7 - render mode");
-		hud.AddLine(HELP, "    F8 - FREE CAM");
+		hud.AddLine(HELP, "    F5 - Help on/off");
+		hud.AddLine(HELP, "    F6 - Shadows on/off");
+		hud.AddLine(HELP, "    F7 - Render mode");
+		hud.AddLine(HELP, "    F8 - Free cam on/off");
 		hud.AddLine(HELP, "");
 		//add a pause screen
 		hud.AddLine(PAUSE, "");
@@ -177,8 +180,8 @@ namespace VisualDebugger
 
 		if (!freecam) 
 			camera->UpdatePosition(delta_time);
-
-		
+			
+				
 		
 	}
 

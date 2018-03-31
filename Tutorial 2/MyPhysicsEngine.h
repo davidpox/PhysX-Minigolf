@@ -11,7 +11,8 @@ namespace PhysicsEngine
 	public:
 		//an example variable that will be checked in the main simulation loop
 		bool trigger;
-		bool isBallOOB = false;
+
+		bool endGame = false;
 
 		CollisionCallback() : trigger(false) {}
 
@@ -24,7 +25,7 @@ namespace PhysicsEngine
 					//check if eNOTIFY_TOUCH_FOUND trigger
 					if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND) {
 						cerr << "onTrigger::eNOTIFY_TOUCH_FOUND" << endl;
-						std::cout << pairs[i].otherActor->getName() << std::endl;
+						endGame = true;
 						trigger = true;
 					}
 					//check if eNOTIFY_TOUCH_LOST trigger
@@ -38,7 +39,11 @@ namespace PhysicsEngine
 
 		///Method called when the contact by the filter shader is detected.
 		virtual void onContact(const PxContactPairHeader &pairHeader, const PxContactPair *pairs, PxU32 nbPairs) {
-			cerr << "Contact found between " << pairHeader.actors[0]->getName() << " " << pairHeader.actors[1]->getName() << endl;
+			string actor0n = pairHeader.actors[0]->getName();
+			string actor1n = pairHeader.actors[1]->getName();
+
+			cerr << "Contact found between " << actor0n << " and " << actor1n << endl;
+			
 
 			//check all pairs
 			for (PxU32 i = 0; i < nbPairs; i++) {
@@ -46,11 +51,10 @@ namespace PhysicsEngine
 				if (pairs[i].events & PxPairFlag::eNOTIFY_TOUCH_FOUND) {
 					cerr << "onContact::eNOTIFY_TOUCH_FOUND" << endl;
 
-					//if (pairHeader.actors[0]->getName() == "playerball") {
-						//std::cout << "beep" << std::endl;
-						
-						//pairHeader.actors[0]->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f)));
-					//}
+					if (actor0n == "playerball") {		
+						((PxRigidDynamic*)pairHeader.actors[0])->setLinearVelocity(PxVec3(0.0f));
+						pairHeader.actors[0]->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f)));
+					}
 				}
 				//check eNOTIFY_TOUCH_LOST
 				if (pairs[i].events & PxPairFlag::eNOTIFY_TOUCH_LOST) {
@@ -78,7 +82,7 @@ namespace PhysicsEngine
 
 		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
 		//enable continous collision detection
-		//		pairFlags |= PxPairFlag::eCCD_LINEAR;
+		pairFlags |= PxPairFlag::eCCD_LINEAR;
 
 
 		//customise collision filtering here
@@ -144,17 +148,22 @@ namespace PhysicsEngine
 			CreateScene();
 		}
 
+		void Update() {
+
+		}
+
 		void CreateScene() {
 			Plane* plane = new Plane();
 			plane->Color(PxVec4(171.0f / 255.0f, 226.0f / 255.0f, 158.0f / 255.0f, 1.0f));
 			plane->Name("plane");
 			Add(plane);
 
-			Sphere* playerBall = new Sphere(PxTransform(PxVec3(32.0f, 10.0f, 16.0f)), 0.3f, 1.0f);
+			Sphere* playerBall = new Sphere(PxTransform(PxVec3(0.0f, 1.7f, 0.0f)), 0.3f, 1.0f);
 			playerBall->Color(PxVec4(1.0f, 1.0f, 1.0f, 1.0f));
 			PxMaterial* ballMat = CreateMaterial(0.4f, 0.2f, 0.8f);
 			playerBall->GetShape(0)->setMaterials(&ballMat, 1);
 			playerBall->Name("playerball");
+			((PxRigidBody*)playerBall->Get())->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 
 			PxRigidDynamic* playerBallRD = ((PxRigidDynamic*)playerBall->Get());
 			playerBallRD->setAngularDamping(2.0f);
