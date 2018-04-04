@@ -163,7 +163,7 @@ namespace PhysicsEngine
 
 			Sphere* playerBall = new Sphere(PxTransform(PxVec3(0.0f, 1.7f, 0.0f)), 0.3f, 1.0f);
 			playerBall->Color(PxVec4(1.0f, 1.0f, 1.0f, 1.0f));
-			PxMaterial* ballMat = CreateMaterial(0.4f, 0.2f, 0.8f);
+			PxMaterial* ballMat = CreateMaterial(0.4f, 0.05f, 0.8f);
 			playerBall->GetShape(0)->setMaterials(&ballMat, 1);
 			playerBall->Name("playerball");
 			((PxRigidBody*)playerBall->Get())->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
