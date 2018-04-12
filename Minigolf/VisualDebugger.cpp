@@ -4,8 +4,6 @@
 #include "Extras\Renderer.h"
 #include "Extras\HUD.h"
 
-
-
 namespace VisualDebugger
 {
 	using namespace physx;
@@ -207,17 +205,16 @@ namespace VisualDebugger
 		{
 			if(shotIncrementer > 0.0f) {
 				shotIncrementer -= 0.05f;
-				setprecision(3);
 				hud.changeLine(HELP, "Shot Increment Power: " + to_string(shotIncrementer), 13);
 			}
 			break;
 			}
 		case '+':
 		{
-			if (shotIncrementer < 1.0f)
+			if (shotIncrementer < 1.0f) {
 				shotIncrementer += 0.05f;
-				setprecision(3);
 				hud.changeLine(HELP, "Shot Increment Power: " + to_string(shotIncrementer), 13);
+			}
 			break;
 		}
 		default:
@@ -234,12 +231,14 @@ namespace VisualDebugger
 		case ' ':
 		{
 			if (clearToShoot) {
+				scene->lastPos = scene->GetSelectedActor()->getGlobalPose().p;
 				clearToShoot = false;
 				scene->GetSelectedActor()->addForce(PxVec3(dir.x, 0.0f, dir.z).getNormalized()*gForceStrength * shotstrength);
 				shotsTaken++;
 				hud.changeLine(HELP, "Shots taken: " + to_string(shotsTaken), 14);
 				shotstrength = 0.0f;
 			}
+			break;
 		}
 		default:
 			break;
@@ -329,7 +328,7 @@ namespace VisualDebugger
 			delta_time = 1.0f/1500.0f;
 			break;
 		case GLUT_KEY_F11:
-			delta_time = 1.0/150.0f;
+			delta_time = 1.0/60.0f;
 			break;
 		default:
 			break;

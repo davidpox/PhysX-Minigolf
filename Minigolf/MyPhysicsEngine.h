@@ -2,15 +2,19 @@
 
 #include "BasicActors.h"
 #include "CourseActors.h"
+#include "VisualDebugger.h"
 #include <iostream>
 #include <iomanip>
 
 namespace PhysicsEngine
 {
+
 	class CollisionCallback : public PxSimulationEventCallback {
 	public:
 		//an example variable that will be checked in the main simulation loop
 		bool trigger;
+
+		bool resetball = false;
 
 		bool endGame = false;
 
@@ -52,13 +56,13 @@ namespace PhysicsEngine
 					cerr << "onContact::eNOTIFY_TOUCH_FOUND" << endl;
 
 					if (actor0n == "playerball") {		
-						((PxRigidDynamic*)pairHeader.actors[0])->setLinearVelocity(PxVec3(0.0f));
-						pairHeader.actors[0]->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f)));
+						resetball = true;
 					}
 				}
 				//check eNOTIFY_TOUCH_LOST
 				if (pairs[i].events & PxPairFlag::eNOTIFY_TOUCH_LOST) {
 					cerr << "onContact::eNOTIFY_TOUCH_LOST" << endl;
+					
 				}
 			}
 		}
@@ -106,6 +110,8 @@ namespace PhysicsEngine
 	{
 	public:
 
+		PxVec3 lastPos = PxVec3(0, 0, 0);
+
 		struct FilterGroup {
 			enum Enum {
 				ePLAYERBALL			= (1 << 0),
@@ -113,6 +119,8 @@ namespace PhysicsEngine
 			};
 
 		};
+
+		
 
 		CollisionCallback* cCallback;
 		bool hasGameEnded;
@@ -145,6 +153,7 @@ namespace PhysicsEngine
 
 			cCallback = new CollisionCallback();
 			px_scene->setSimulationEventCallback(cCallback);
+			
 
 			CreateScene();
 		}
@@ -152,6 +161,11 @@ namespace PhysicsEngine
 		void CustomUpdate() {
 			if (cCallback->endGame) {
 				hasGameEnded = true;
+			}
+			if (cCallback->resetball) {
+				((PxRigidDynamic*)GetSelectedActor())->setLinearVelocity(PxVec3(0.0f));
+				GetSelectedActor()->setGlobalPose(PxTransform(lastPos));
+				cCallback->resetball = false;
 			}
 		}
 
@@ -429,6 +443,24 @@ namespace PhysicsEngine
 			plane->SetupFiltering(FilterGroup::ePLANE, FilterGroup::ePLAYERBALL);
 
 			pole->GetShape(0)->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
+
+			/* Test Cases */
+			//int xpos = 0;
+			//int ypos = 0;
+			//for (int x = 0; x < 100; x++) {
+			//	Sphere* box = new Sphere(PxTransform(PxVec3(xpos, 50, ypos)));
+			//	PxMaterial* boxMat = CreateMaterial(0.0f, 0.0f, 0.8f);
+			//	box->GetShape(0)->setMaterials(&ballMat, 1);
+			//	//box->SetKinematic(true);
+			//	Add(box);
+
+			//	xpos += 4;
+			//	if ((x + 1) % 10 == 0) {
+			//		ypos += 4;
+			//		xpos = 0;
+			//	}
+
+			//}
 		}
 	};
 }
